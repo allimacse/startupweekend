@@ -9,31 +9,126 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 -->
 
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
+
 <link rel="import" href="shared-styles.html">
 
 <dom-module id="my-view1">
   <template>
     <style include="shared-styles">
-      :host {
-        display: block;
+    :host {
+      display: block;
 
-        padding: 10px;
-      }
-    </style>
+      padding: 10px;
+    }
+  </style>
 
-    <div class="card">
-      <div class="circle">1</div>
-      <h1>View One</h1>
-      <p>Ut labores minimum atomorum pro. Laudem tibique ut has.</p>
-      <p>Lorem ipsum dolor sit amet, per in nusquam nominavi periculis, sit elit oportere ea.Lorem ipsum dolor sit amet, per in nusquam nominavi periculis, sit elit oportere ea.Cu mei vide viris gloriatur, at populo eripuit sit.</p>
+  <custom-style>
+  <style is="custom-style">
+    .cafe-header { @apply --paper-font-headline; }
+    .cafe-light { color: var(--paper-grey-600); }
+    .cafe-location {
+      float: right;
+      font-size: 15px;
+      vertical-align: middle;
+    }
+    .cafe-reserve { color: var(--google-blue-500); }
+    iron-icon.star {
+      --iron-icon-width: 16px;
+      --iron-icon-height: 16px;
+      color: var(--paper-amber-500);
+    }
+    iron-icon.star:last-of-type { color: var(--paper-grey-500); }
+  </style>
+</custom-style>
+
+  <firebase-auth 
+  app-name="redSocial"
+  user="{{user}}">
+</firebase-auth>
+
+<firebase-query
+id="query"
+app-name="redSocial"
+path="/socias"
+data="{{socias}}">
+</firebase-query>
+
+
+
+<div class="card">
+  <div>
+    <template is="dom-repeat" items="[[socias]]"  as="socia">
+      <paper-card heading="[[socia.nombre]]">
+        <div class="card-content">[[socia.frase]]</div>
+        <div class="card-content"><paper-icon-button src="[[socia.photoURL]]">Clear</paper-icon-button></div>
+        <div class="card-actions">
+          <paper-icon-button icon="clear" socia="{{socia}}" on-tap="remove">Clear</paper-icon-button>
+        </div>
+      </paper-card>
+
+
+
+
+  <paper-card image="[[socia.photoURL]]" >
+
+      <p class="cafe-light">[[socia.frase]]</p>
     </div>
-  </template>
+    <div class="card-actions">
+      <p>Tonight's availability</p>
+      <div class="horizontal justified">
+        <paper-icon-button icon="icons:event"></paper-icon-button>
+        <paper-button>5:30PM</paper-button>
+        <paper-button>7:30PM</paper-button>
+        <paper-button>9:00PM</paper-button>
+      </div>
+      <paper-button class="cafe-reserve">Reserve</paper-button>
+      <paper-icon-button icon="clear" socia="{{socia}}" on-tap="remove">Clear</paper-icon-button>
+    </div>
+  </paper-card>
 
-  <script>
-    class MyView1 extends Polymer.Element {
-      static get is() { return 'my-view1'; }
+
+    </template>
+    <paper-input id="input1" label="Titulo..."></paper-input>
+    <paper-input id="input2" label="Digita una frase..."></paper-input>
+    <paper-input id="input3" label="Digita una frase..."></paper-input>
+
+    <paper-button on-tap="add">Add</paper-button>
+  </div>
+</div>
+</template>
+
+<script>
+  class MyView1 extends Polymer.Element {
+    static get is() { return 'my-view1'; }
+    static get properties() {
+      return {
+        socias:{
+          type: Object
+        }
+      };
     }
 
-    window.customElements.define(MyView1.is, MyView1);
-  </script>
+  
+  add(){
+    if (this.user!=null){
+
+      this.$.query.ref.push({
+        nombre: this.$.input1.value,
+        frase: this.$.input2.value,
+        photoURL: this.$.input3.value
+      }); 
+      this.$.input1.value = null;
+      this.$.input2.value = null; 
+      this.$.input3.value = null; 
+    }
+  }
+
+  remove(e){
+    var key = e.currentTarget.socia.$key;
+    this.$.query.ref.child(key).remove();
+  }
+}
+
+  window.customElements.define(MyView1.is, MyView1);
+</script>
 </dom-module>
